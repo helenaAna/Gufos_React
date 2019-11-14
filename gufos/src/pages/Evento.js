@@ -9,6 +9,29 @@ import '../assets/css/style.css';
 
 class Evento extends Component
 {
+    constructor(props)
+  {
+    super(props);
+    this.state = {
+      listaEvento :[],
+      titulo :'',
+      dataEvento: '',
+      acessoLivre: '',
+      categoria:''
+    }
+  }
+  buscarEvento()
+{
+  fetch('http://localhost:5000/api/eventos')
+  .then(resposta => resposta.json())
+  .then(data => this.setState({listaEvento : data}))
+  .catch((erro) => console.log(erro))
+}
+componentDidMount()
+{
+  this.buscarEvento();
+}
+
     render(){
         return(
     <div>
@@ -28,7 +51,22 @@ class Evento extends Component
               </tr>
             </thead>
 
-            <tbody id="tabela-lista-corpo"></tbody>
+            <tbody id="tabela-lista-corpo">
+            {
+                  this.state.listaEvento.map(function(evento)
+                  {
+                    return(
+                      <tr key={evento.eventoId}>
+                        <td>{evento.eventoId}</td>
+                        <td>{evento.titulo}</td>
+                        <td>{evento.dataEvento}</td>
+                        <td>{evento.acessoLivre ? 'Liberado':'Negado'}</td>{/* Operador ternario js */}
+                        <td>{evento.categoria.titulo}</td>
+                      </tr>
+                    )
+                  })
+            }
+            </tbody>
           </table>
         </div>
 

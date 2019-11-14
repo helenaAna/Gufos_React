@@ -7,8 +7,30 @@ import '../assets/css/flexbox.css';
 import '../assets/css/reset.css';
 import '../assets/css/style.css';
 
-class Categogias extends Component
+
+
+class Categoria extends Component
 {
+  constructor(props)
+{
+  super(props);
+  this.state = {
+    listaCategoria :[],
+    titulo :''
+  }
+}
+
+buscarCategoria()
+{
+  fetch('http://localhost:5000/api/categorias')
+  .then(resposta => resposta.json())
+  .then(data => this.setState({listaCategoria : data}))
+  .catch((erro) => console.log(erro))
+}
+componentDidMount()
+{
+  this.buscarCategoria();
+}
     render(){
         return(
     <div>
@@ -25,7 +47,21 @@ class Categogias extends Component
                 </tr>
               </thead>
 
-              <tbody id="tabela-lista-corpo"></tbody>
+              <tbody id="tabela-lista-corpo">
+                {
+                  this.state.listaCategoria.map(function(categoria)
+                  {
+                    return(
+                      <tr key={categoria.categoriaId}>
+                        <td>{categoria.categoriaId}</td>
+                        <td>{categoria.titulo}</td>
+                      </tr>
+                    )
+                  })
+                }
+
+              </tbody>
+              
             </table>
           </div>
 
@@ -50,4 +86,4 @@ class Categogias extends Component
         );
      }
 }
-export default Categogias; // por padrão devolve a página como objeto para o navegador
+export default Categoria; // por padrão devolve a página como objeto para o navegador
