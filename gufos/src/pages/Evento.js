@@ -19,6 +19,12 @@ class Evento extends Component
       acessoLivre: '',
       categoria:''
     }
+    this.atualizaEstadoData = this.atualizaEstadoData.bind(this);
+    this.atualizaEstadoAcesso = this.atualizaEstadoAcesso.bind(this);
+    this.atualizaEstadoTitulo = this.atualizaEstadoTitulo.bind(this);
+    this.buscarEvento = this.buscarEvento.bind(this);
+    this.cadastraEvento = this.cadastraEvento.bind(this);
+     
   }
   buscarEvento()
 {
@@ -27,19 +33,55 @@ class Evento extends Component
   .then(data => this.setState({listaEvento : data}))
   .catch((erro) => console.log(erro))
 }
+atualizaEstadoTitulo(event){
+  this.setState({titulo:event.target.value})
+}
+atualizaEstadoData(event){
+  this.setState({dataEvento:event.target.value})
+}
+atualizaEstadoAcesso(event){
+  this.setState({acessoLivre:event.target.value})
+}
+cadastraEvento(event)
+{
+  event.preventDefault(); //Evito comportamento padões da pg
+  
+  //local para onde serão os dados
+  fetch('http://localhost:5000/api/eventos', 
+  {
+    method: 'POST', // declara o metodo que será utilizado 
+    body: JSON.stringify({
+      titulo : this.state.titulo,
+      dataEvento : this.state.dataEvento,
+      acessoLivre : this.state.acessoLivre
+    }),
+    headers:{
+      "Content-type" : "application/json"
+    }
+  })
+  .then(resposta => {
+    if (resposta.status === 200){
+      console.log('Evento Cadatrado!');
+    }
+  })
+  .catch(erro => console.log(erro))
+  .then(this.buscarEvento)// Atualiza na tabela a categoria cadastrada
+}
+
 componentDidMount()
 {
   this.buscarEvento();
 }
 
-    render(){
-        return(
+render(){
+  return(
     <div>
     <Cabecalho/>
-    <main className="conteudoPrincipal">
-      <section className="conteudoPrincipal-cadastro">
-        <h1 className="conteudoPrincipal-cadastro-titulo">Eventos</h1>
-        <div className="container" id="conteudoPrincipal-lista">
+    <div classNameName="App">
+    <main class="conteudoPrincipal">
+      <section class="conteudoPrincipal-cadastro">
+        <h1 class="conteudoPrincipal-cadastro-titulo">Eventos</h1>
+        <div class="container" id="conteudoPrincipal-lista">
           <table id="tabela-lista">
             <thead>
               <tr>
@@ -52,34 +94,46 @@ componentDidMount()
             </thead>
 
             <tbody id="tabela-lista-corpo">
-            {
-                  this.state.listaEvento.map(function(evento)
-                  {
-                    return(
-                      <tr key={evento.eventoId}>
-                        <td>{evento.eventoId}</td>
-                        <td>{evento.titulo}</td>
-                        <td>{evento.dataEvento}</td>
-                        <td>{evento.acessoLivre ? 'Liberado':'Negado'}</td>{/* Operador ternario js */}
-                        <td>{evento.categoria.titulo}</td>
-                      </tr>
-                    )
-                  })
-            }
+              {
+                 this.state.listaEvento.map(function(evento){
+                  return(
+                    <tr key={evento.eventoId}>
+                      <td>{evento.eventoId}</td>
+                      <td>{evento.titulo}</td>
+                      <td>{evento.dataEvento}</td>
+                      <td>{evento.acessoLivre ? 'Liberado' : "Negado"}</td>
+                      {/* <td>{evento.categoria.titulo}</td> */}
+                      
+                    </tr>
+                  )
+                 })
+              }
             </tbody>
           </table>
         </div>
 
-        <div className="container" id="conteudoPrincipal-cadastro">
-          <h2 className="conteudoPrincipal-cadastro-titulo">Cadastrar Evento</h2>
-          <div className="container">
-            <input
+      <form onSubmit={this.cadastraEvento}>
+        <div class="container" id="conteudoPrincipal-cadastro">
+          <h2 class="conteudoPrincipal-cadastro-titulo">Cadastrar Evento</h2>
+          <div class="container">
+            <input 
+              value={this.state.titulo} 
+              onChange = {this.atualizaEstadoTitulo}
               type="text"
               id="evento__titulo"
               placeholder="título do evento"
             />
-            <input type="text" id="evento__data" placeholder="dd/MM/yyyy" />
-            <select id="option__acessolivre">
+            <input 
+            type="date" id="evento__data" 
+            placeholder="dd/mm/yyyy" 
+            value={this.state.EstadoData}
+            onChange = {this.atualizaEstadoData}
+            />
+
+            <select id="option__acessolivre"
+            value={this.state.acessoLivre}
+            onChange = {this.atualizaEstadoAcesso}
+            >
               <option value="1">Livre</option>
               <option value="0">Restrito</option>
             </select>
@@ -94,14 +148,16 @@ componentDidMount()
             ></textarea>
           </div>
           <button
-            className="conteudoPrincipal-btn conteudoPrincipal-btn-cadastro"
+            class="conteudoPrincipal-btn conteudoPrincipal-btn-cadastro"
             onclick="cadastrarEvento()"
           >
             Cadastrar
-          </button>
-        </div>
+            </button>
+          </div>
+        </form>
       </section>
     </main>
+</div>
     <Rodape/> 
     </div>
         );

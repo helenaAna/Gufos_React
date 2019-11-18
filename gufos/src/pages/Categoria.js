@@ -18,6 +18,10 @@ class Categoria extends Component
     listaCategoria :[],
     titulo :''
   }
+  //chama funções do projeto
+  this.atualizaEstadoTitulo = this.atualizaEstadoTitulo.bind(this);
+  this.buscarCategoria = this.buscarCategoria.bind(this);
+  this.cadastraCategoria = this.cadastraCategoria.bind(this);
 }
 
 buscarCategoria()
@@ -31,6 +35,33 @@ componentDidMount()
 {
   this.buscarCategoria();
 }
+// recebe um evento, e recebo o valor do campo titulo
+atualizaEstadoTitulo(event)
+{
+  this.setState({titulo:event.target.value})
+}
+cadastraCategoria(event)
+{
+  event.preventDefault(); //Evito comportamento padões da pg
+
+  //local para onde serão os dados
+  fetch('http://localhost:5000/api/categorias', 
+  {
+    method: 'POST', // declara o metodo que será utilizado 
+    body: JSON.stringify({titulo: this.state.titulo}),
+    headers:{
+      "Content-type" : "application/json"
+    }
+  })
+  .then(resposta => {
+    if (resposta.status === 200){
+      console.log('Categoria cadastrada!');
+    }
+  })
+  .catch(erro => console.log(erro))
+  .then(this.buscarCategoria)// Atualiza na tabela a categoria cadastrada
+}
+
     render(){
         return(
     <div>
@@ -69,11 +100,14 @@ componentDidMount()
             <h2 className="conteudoPrincipal-cadastro-titulo">
               Cadastrar Tipo de Evento
             </h2>
-            <form>
-              <div className="container">
-              <input type="text" id="codigo" placeholder="Código"/> 
-                <input type="text" id="nome-tipo-evento" placeholder="tipo do evento"/>
-                <button className="conteudoPrincipal-btn conteudoPrincipal-btn-cadastro">
+            <form onSubmit={this.cadastraCategoria}>
+              <div className="container">             
+                <input 
+                value={this.state.titulo} //o valor digitado no input vai para a 
+                onChange = {this.atualizaEstadoTitulo}// evento do formulario
+                type="text" id="nome-tipo-evento" placeholder="tipo do evento"
+                />
+                <button type="submit" className="conteudoPrincipal-btn conteudoPrincipal-btn-cadastro">
                   Cadastrar
                 </button>
               </div>
