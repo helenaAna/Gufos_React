@@ -68,6 +68,26 @@ cadastraEvento(event)
   .then(this.buscarEvento)// Atualiza na tabela a categoria cadastrada
 }
 
+
+deletarEvento = (id) => {
+  console.log("Excuindo");
+  
+  fetch("http://localhost:5000/api/eventos/"+id,{
+    method : "DELETE",
+    headers : {
+      "Content-type" : "application/json"
+    }
+  })
+  .then(response => response.json())
+  .then(response => {
+    console.log(response);
+    this.listaAtualizada();
+    this.setState( () =>({lista: this.state.lista}))
+  })
+  .catch(error => console.log(error))
+  .then(this.buscarEvento)
+}
+
 componentDidMount()
 {
   this.buscarEvento();
@@ -90,6 +110,7 @@ render(){
                 <th>Data</th>
                 <th>Acesso Livre</th>
                 <th>Tipo do Evento</th>
+                <th>Ação</th>
               </tr>
             </thead>
 
@@ -102,12 +123,16 @@ render(){
                       <td>{evento.titulo}</td>
                       <td>{evento.dataEvento}</td>
                       <td>{evento.acessoLivre ? 'Liberado' : "Negado"}</td>
-                      {/* <td>{evento.categoria.titulo}</td> */}
-                      
-                    </tr>
-                  )
-                 })
-              }
+                      <td>qq coisa</td>
+                      <td>
+                      <button type="submit" onClick={i => this.deletarEvento(evento.eventoId)}>
+                       Excluir
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  }.bind(this))
+                }
             </tbody>
           </table>
         </div>

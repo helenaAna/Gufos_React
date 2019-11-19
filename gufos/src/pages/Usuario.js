@@ -17,9 +17,16 @@ class Usuario extends Component
       nome:'',
       email:'',
       permissao:'',
-      uf:'',
-      acao:''
+      senha:''
+      
     }
+  
+  this.atualizaEstadoSenha = this.atualizaEstadoSenha.bind(this);
+  this.atualizaEstadoPermissao = this.atualizaEstadoPermissao.bind(this);
+  this.atualizaEstadoEmail = this.atualizaEstadoEmail.bind(this);
+  this.atualizaEstadoNome = this.atualizaEstadoNome.bind(this);
+  this.buscarUsuario = this.buscarUsuario.bind(this);
+  this.cadastraUsuario = this.cadastraUsuario.bind(this);
   }
   buscarUsuario()
 {
@@ -28,6 +35,69 @@ class Usuario extends Component
   .then(data => this.setState({listaUsuario : data}))
   .catch((erro) => console.log(erro))
 }
+
+atualizaEstadoNome(event)
+{
+  this.setState({nome:event.target.value})
+}
+atualizaEstadoEmail(event)
+{
+  this.setState({email:event.target.value})
+}
+atualizaEstadoPermissao(event)
+{
+  this.setState({permissao:event.target.value})
+}
+atualizaEstadoSenha(event)
+{
+  this.setState({senha:event.target.value})
+}
+cadastraUsuario(event)
+{
+  event.preventDefault(); //Evito comportamento padões da pg
+  
+  //local para onde serão os dados
+  fetch('http://localhost:5000/api/usuarios', 
+  {
+    method: 'POST', // declara o metodo que será utilizado 
+    body: JSON.stringify({
+      nome: this.state.nome,
+      email:this.state.email,
+      permissao:this.state.permissao,
+      senha: this.state.senha
+    }),
+    headers:{
+      "Content-type" : "application/json"
+    }
+  })
+  .then(resposta => {
+    if (resposta.status === 200){
+      console.log('Usuário cadastrado!');
+    }
+  })
+  .catch(erro => console.log(erro))
+  .then(this.buscarUsuario)// Atualiza na tabela a categoria cadastrada
+}
+
+deletarUsuario = (id) => {
+  console.log("Excuindo");
+  
+  fetch("http://localhost:5000/api/usuarios/"+id,{
+    method : "DELETE",
+    headers : {
+      "Content-type" : "application/json"
+    }
+  })
+  .then(response => response.json())
+  .then(response => {
+    console.log(response);
+    this.listaAtualizada();
+    this.setState( () =>({lista: this.state.lista}))
+  })
+  .catch(error => console.log(error))
+  .then(this.buscarUsuario)
+}
+
 componentDidMount()
 {
   this.buscarUsuario();
@@ -63,10 +133,14 @@ componentDidMount()
                         <td>{usuarios.email}</td>
                         <td>{usuarios.tipoUsuario.titulo}</td>
                         <td>SP</td>
-                        <td>Editar/Excluir</td>
+                        <td>
+                        <button type="submit" onClick={i => this.deletarUsuario(usuarios.usuarioId)}>
+                       Excluir
+                          </button>
+                        </td>
                       </tr>
                     )
-                  })
+                  }.bind(this))
             }
             </tbody>
           </table>
@@ -82,26 +156,40 @@ componentDidMount()
             <a href="#">&raquo;</a>
           </div>
         </div>
-
+        <form onSubmit={this.cadastraUsuario}>
         <div className="container" id="conteudoPrincipal-cadastro">
           <h2 className="conteudoPrincipal-cadastro-titulo">Cadastrar Usuário</h2>
           <div className="container">
-            <input type="text" placeholder="nome do usuário" />
-            <input type="text" placeholder="e-mail" />
-            <select>
+            <input 
+            value={this.state.nome}
+            onChange={this.atualizaEstadoNome}
+            type="text" placeholder="nome do usuário" />
+            <input 
+            value={this.state.email}
+            onChange={this.atualizaEstadoEmail}
+            type="text" placeholder="e-mail" />
+            <select
+            value={this.state.permissao}
+            onChange={this.atualizaEstadoPermissao}
+            >
               <option value="0" disabled>Permissão</option>
               <option value="ADMINISTRADOR">ADMINISTRADOR</option>
               <option value="COMUM">COMUM</option>
             </select>
-            <input type="text" placeholder="data de nascimento" />
+            {/* <input type="text" placeholder="data de nascimento" />
             <input type="text" placeholder="logradouro" />
             <input type="text" placeholder="cidade" />
-            <input type="text" placeholder="estado" />
+            <input type="text" placeholder="estado" /> */}
+            <input
+            value={this.state.senha}
+            onChange={this.atualizaEstadoSenha}
+            type = "password"/>
           </div>
           <button className="conteudoPrincipal-btn conteudoPrincipal-btn-cadastro">
             Cadastrar
           </button>
         </div>
+        </form>
       </section>
     </main>
     <Rodape/> 
